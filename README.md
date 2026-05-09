@@ -23,9 +23,21 @@ SQLite is used so the project can be reviewed locally without extra database set
 - Multiple saved trees render one below another
 - Bonus: click a tag name, edit it, and press Enter to save
 
+## Screenshots
+
+### Initial Tree
+
+![Initial nested tags tree](docs/screenshots/initial-tree.png)
+
+### Exported And Saved Tree
+
+![Exported nested tags tree](docs/screenshots/exported-tree.png)
+
 ## Project Structure
 
 ```txt
+docs/
+  screenshots/
 backend/
   app/
     main.py
@@ -105,4 +117,3 @@ Create `frontend/.env.local` only if the backend is not running on port `8000`.
 ```txt
 VITE_API_BASE_URL=http://localhost:8000
 ```
-
