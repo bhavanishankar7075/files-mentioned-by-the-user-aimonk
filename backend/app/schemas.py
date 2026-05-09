@@ -22,6 +22,8 @@ class TagTree(BaseModel):
         has_children = self.children is not None
         has_data = self.data is not None
 
+        # The assignment expects every tag to be either a parent node or a data
+        # leaf. Accepting both would make the frontend export ambiguous.
         if has_children == has_data:
             raise ValueError("each tag must contain either children or data")
         if self.children is not None and len(self.children) == 0:
@@ -41,4 +43,3 @@ class TreeOut(BaseModel):
     tree: TagTree
     created_at: datetime
     updated_at: datetime
-

@@ -9,6 +9,8 @@ from .database import Base
 class TreeRecord(Base):
     __tablename__ = "tree_records"
 
+    # A tree record represents one saved hierarchy. Its nodes live in the
+    # tag_nodes table so the hierarchy stays queryable as relational data.
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -32,6 +34,8 @@ class TreeRecord(Base):
 class TagNode(Base):
     __tablename__ = "tag_nodes"
 
+    # parent_id points back into the same table, which gives us an adjacency
+    # list. position keeps sibling order stable when the tree is rebuilt.
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     tree_id: Mapped[int] = mapped_column(
         ForeignKey("tree_records.id", ondelete="CASCADE"),
@@ -57,4 +61,3 @@ class TagNode(Base):
         cascade="all, delete-orphan",
         order_by="TagNode.position",
     )
-

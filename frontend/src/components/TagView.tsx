@@ -29,6 +29,8 @@ export function TagView({ node, depth = 0, onChange }: TagViewProps) {
   }, [editingName, node.name]);
 
   const addChild = () => {
+    // A leaf tag becomes a parent tag as soon as a child is added, matching the
+    // assignment rule that a tag cannot keep data and children at the same time.
     onChange({
       name: node.name,
       children: [...(node.children ?? []), newChild()],
@@ -53,6 +55,7 @@ export function TagView({ node, depth = 0, onChange }: TagViewProps) {
   const commitName = () => {
     const name = draftName.trim();
     if (!name) {
+      // Empty names are ignored so the exported tree always stays valid.
       setDraftName(node.name);
       setEditingName(false);
       return;
@@ -111,6 +114,7 @@ export function TagView({ node, depth = 0, onChange }: TagViewProps) {
         <div className="tag-content">
           {node.children ? (
             <div className="children-list">
+              {/* Recursion keeps TagView responsible for one node at a time. */}
               {node.children.map((child, index) => (
                 <TagView
                   key={`${child.name}-${index}`}
@@ -134,4 +138,3 @@ export function TagView({ node, depth = 0, onChange }: TagViewProps) {
     </section>
   );
 }
-

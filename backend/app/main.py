@@ -11,6 +11,8 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AIMonk Nested Tags API")
 
+# Local development origins used by Vite. This keeps the API locked down enough
+# for the assignment while still being easy to run during review.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -32,6 +34,8 @@ def health() -> dict[str, str]:
 
 @app.get("/api/trees", response_model=list[TreeOut])
 def list_trees(db: Session = Depends(get_db)) -> list[dict]:
+    # The frontend expects all previously saved trees so it can render them one
+    # below another on the same page.
     return [serialize_record(record) for record in get_all_trees(db)]
 
 
@@ -48,4 +52,3 @@ def replace_tree(tree_id: int, payload: TreeIn, db: Session = Depends(get_db)) -
         raise HTTPException(status_code=404, detail="Tree not found")
 
     return serialize_record(record)
-

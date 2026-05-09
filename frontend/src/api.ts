@@ -3,6 +3,8 @@ import type { TagNode, TreeRecord } from "./types";
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  // Centralizing fetch handling keeps the component code focused on tree
+  // behavior instead of response parsing and error checks.
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
@@ -32,4 +34,3 @@ export const updateTree = (id: number, tree: TagNode) =>
     method: "PUT",
     body: JSON.stringify({ tree }),
   });
-

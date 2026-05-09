@@ -34,7 +34,9 @@ export const cloneTree = (tree: TagNode): TagNode => ({
     : { data: tree.data ?? "" }),
 });
 
+// Export and API calls should never include UI-only values such as collapse
+// state, local ids, or editing flags. Keeping this helper small makes that
+// contract clear across the app.
 export const cleanTree = cloneTree;
 
 export const formatJson = (tree: TagNode) => JSON.stringify(cleanTree(tree), null, 2);
-

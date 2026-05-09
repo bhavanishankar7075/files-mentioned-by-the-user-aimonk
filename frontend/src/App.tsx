@@ -19,6 +19,8 @@ function App() {
   useEffect(() => {
     let active = true;
 
+    // Load every saved hierarchy on first render. If the backend is unavailable,
+    // the user can still work with the starter tree and retry export later.
     fetchTrees()
       .then((records) => {
         if (!active) {
@@ -49,6 +51,8 @@ function App() {
   const savedCount = useMemo(() => trees.filter((tree) => tree.id).length, [trees]);
 
   const updateDraftTree = (clientId: string, tree: TagNode) => {
+    // Only replace the edited tree. The other rendered trees keep their own
+    // state, which matters when several database records are shown together.
     setTrees((current) =>
       current.map((draft) =>
         draft.clientId === clientId
@@ -68,6 +72,8 @@ function App() {
       return;
     }
 
+    // The same clean tree is used for the visible JSON and the API payload, so
+    // the exported output always matches what is saved in the database.
     const tree = cleanTree(draft.tree);
     const exportedJson = formatJson(tree);
 
@@ -166,4 +172,3 @@ function App() {
 }
 
 export default App;
-

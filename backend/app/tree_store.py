@@ -10,6 +10,7 @@ def create_tree(db: Session, tree: TagTree) -> TreeRecord:
     db.add(record)
     db.flush()
 
+    # Flush gives the tree record an id before its recursive nodes are inserted.
     db.add(_to_node(tree, record.id, None, 0))
     db.commit()
     db.refresh(record)
@@ -21,6 +22,8 @@ def update_tree(db: Session, tree_id: int, tree: TagTree) -> TreeRecord | None:
     if record is None:
         return None
 
+    # Updating is treated as replacing the submitted hierarchy. That keeps the
+    # API simple and avoids trying to diff arbitrary recursive structures.
     for node in list(record.nodes):
         db.delete(node)
 
@@ -52,6 +55,8 @@ def get_all_trees(db: Session) -> list[TreeRecord]:
 def serialize_record(record: TreeRecord) -> dict:
     root = next(node for node in record.nodes if node.parent_id is None)
 
+    # FastAPI can serialize the Pydantic tree object while preserving the same
+    # JSON shape used by the React UI.
     return {
         "id": record.id,
         "tree": _to_tree(root),
@@ -70,6 +75,8 @@ def _to_node(tree: TagTree, tree_id: int, parent_id: int | None, position: int) 
     )
 
     if tree.children is not None:
+        # SQLAlchemy fills parent_id from the relationship after the parent node
+        # is attached, so nested children can be created before a database flush.
         node.children = [
             _to_node(child, tree_id, None, child_position)
             for child_position, child in enumerate(tree.children)
@@ -80,6 +87,8 @@ def _to_node(tree: TagTree, tree_id: int, parent_id: int | None, position: int) 
 
 def _to_tree(node: TagNode) -> TagTree:
     if node.children:
+        # Sibling order matters for a visual tree, so the stored position is
+        # applied every time the hierarchy is reconstructed.
         children = sorted(node.children, key=lambda child: child.position)
         return TagTree(
             name=node.name,
@@ -87,4 +96,3 @@ def _to_tree(node: TagNode) -> TagTree:
         )
 
     return TagTree(name=node.name, data=node.data or "")
-
